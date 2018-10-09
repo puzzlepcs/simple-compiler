@@ -11,7 +11,7 @@
 
 /* states in scanner DFA */
 typedef enum
-   { START,INEQ,INCOMMENT,INNUM,INID,DONE,INLT,INGT,INNE,INOVER,INCOMMENT_ }
+   { START,INEQ,INNUM,INID,DONE,INLT,INGT,INNE,INOVER,INCOMMENT,INCOMMENT_ }
    StateType;
 
 /* lexeme of identifier or reserved word */
@@ -94,26 +94,24 @@ TokenType getToken(void)
            state = INNUM;
          else if (isalpha(c))
            state = INID;
-         else if (c == ':')
-           state = INASSIGN;
+         else if (c == '=')
+           state = INEQ;
          else if ((c == ' ') || (c == '\t') || (c == '\n'))
            save = FALSE;
-         else if (c == '{')
-         { save = FALSE;
-           state = INCOMMENT;
-         }
+		 else if (c == '<')
+		   state = INLT;
+		 else if (c == '>')
+		   state = INGT;
+		 else if (c == '!')
+		   state = INNE;
+		 else if (c == '/')
+           state = INOVER;
          else
          { state = DONE;
            switch (c)
            { case EOF:
                save = FALSE;
                currentToken = ENDFILE;
-               break;
-             case '=':
-               currentToken = EQ;
-               break;
-             case '<':
-               currentToken = LT;
                break;
              case '+':
                currentToken = PLUS;
@@ -154,25 +152,74 @@ TokenType getToken(void)
            }
          }
          break;
+	   case INOVER:
+		 if (c == '*') 
+		 { state = INCOMMENT;
+		   save = FALSE;
+		 }
+		 else 
+		 { state = DONE;
+		   ungetNextChar();
+		   currentToken = OVER;
+		 }
+		 break;
        case INCOMMENT:
-         save = FALSE;
-         if (c == EOF)
-         { state = DONE;
-           currentToken = ENDFILE;
-         }
-         else if (c == '}') state = START;
-         break;
-       case INASSIGN:
+	     save = FALSE;
+		 if (c == EOF)
+		 { state = DONE;
+		   currentToken = ENDFILE;
+		 } 
+		 else if (c == '*')
+		   state = INCOMMENT_;
+		 break;
+	   case INCOMMENT_:
+	     if (c == EOF) 
+		 { state = DONE;
+		   currentToken = ENDFILE;
+		 }
+		 else if (c == '/')
+		   state = START;
+		 else
+		   state = INCOMMENT;
+		 break;
+	   case INEQ:
          state = DONE;
          if (c == '=')
-           currentToken = ASSIGN;
+           currentToken = EQ;
          else
          { /* backup in the input */
            ungetNextChar();
-           save = FALSE;
-           currentToken = ERROR;
+           currentToken = ASSIGN;
          }
          break;
+	   case INLT:
+         state = DONE;
+		 if (c == '=')
+			 currentToken = LE;
+		 else
+		 { ungetNextChar();
+		   currentToken = LT;
+		 }
+		 break;
+	   case INGT:
+		 state = DONE;
+		 if (c == '=')
+			 currentToken = GE;
+		 else
+		 { ungetNextChar();
+		   currentToken = GT;
+		 }
+		 break;
+	   case INNE:
+		 state = DONE;
+		 if (c == '=')
+			 currentToken = NE;
+		 else
+		 { ungetNextChar();
+		   save = FALSE;
+		   currentToken = ERROR;
+		 }
+		 break;
        case INNUM:
          if (!isdigit(c))
          { /* backup in the input */
