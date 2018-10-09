@@ -4,58 +4,57 @@
 # K. Louden 2/3/98
 #
 
-CC = bcc
+CC = gcc
 
-CFLAGS = 
+CFLAGS =
 
-OBJS = main.obj util.obj scan.obj parse.obj symtab.obj analyze.obj code.obj cgen.obj
+OBJS = main.o util.o scan.o parse.o symtab.o analyze.o code.o cgen.o
 
-tiny.exe: $(OBJS)
-	$(CC) $(CFLAGS) -etiny $(OBJS)
+cminus: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o cminus
 
-main.obj: main.c globals.h util.h scan.h parse.h analyze.h cgen.h
+main.o: main.c globals.h util.h scan.h parse.h analyze.h cgen.h
 	$(CC) $(CFLAGS) -c main.c
 
-util.obj: util.c util.h globals.h
+util.o: util.c util.h globals.h
 	$(CC) $(CFLAGS) -c util.c
 
-scan.obj: scan.c scan.h util.h globals.h
+scan.o: scan.c scan.h util.h globals.h
 	$(CC) $(CFLAGS) -c scan.c
 
-parse.obj: parse.c parse.h scan.h globals.h util.h
+parse.o: parse.c parse.h scan.h globals.h util.h
 	$(CC) $(CFLAGS) -c parse.c
 
-symtab.obj: symtab.c symtab.h
+symtab.o: symtab.c symtab.h
 	$(CC) $(CFLAGS) -c symtab.c
 
-analyze.obj: analyze.c globals.h symtab.h analyze.h
+analyze.o: analyze.c globals.h symtab.h analyze.h
 	$(CC) $(CFLAGS) -c analyze.c
 
-code.obj: code.c code.h globals.h
+code.o: code.c code.h globals.h
 	$(CC) $(CFLAGS) -c code.c
 
-cgen.obj: cgen.c globals.h symtab.h code.h cgen.h
+cgen.o: cgen.c globals.h symtab.h code.h cgen.h
 	$(CC) $(CFLAGS) -c cgen.c
 
+#byflex
+cminus_flex: main.o globals.h util.o lex.yy.o
+	$(CC) $(CFLAGS) main.o util.o lex.yy.o -o cminus_flex -lfl
+
+lex.yy.o: cminus.l scan.h util.h globals.h
+	flex cminus.l
+	$(CC) $(CFLAG) -c lex.yy.c -lfl
+
 clean:
-	-del tiny.exe
-	-del tm.exe
-	-del main.obj
-	-del util.obj
-	-del scan.obj
-	-del parse.obj
-	-del symtab.obj
-	-del analyze.obj
-	-del code.obj
-	-del cgen.obj
-	-del tm.obj
+	-rm cminus
+	-rm tm
+	-rm cminus_flex
+	-rm lex.yy.o
+	-rm lex.yy.c
+	-rm $(OBJS)
 
-tm.exe: tm.c
-	$(CC) $(CFLAGS) -etm tm.c
+tm: tm.c
+	$(CC) $(CFLAGS) tm.c -o tm
 
-tiny: tiny.exe
-
-tm: tm.exe
-
-all: tiny tm
+all: cminus cminus_flex tm
 
