@@ -105,8 +105,10 @@ TokenType getToken(void)
 		 else if (c == '!')
 		   state = INNE;
 		 else if (c == '/')
+		 { save = FALSE;
            state = INOVER;
-         else
+		 }
+		 else
          { state = DONE;
            switch (c)
            { case EOF:
@@ -173,6 +175,7 @@ TokenType getToken(void)
 		   state = INCOMMENT_;
 		 break;
 	   case INCOMMENT_:
+		 save = FALSE;
 	     if (c == EOF) 
 		 { state = DONE;
 		   currentToken = ENDFILE;
