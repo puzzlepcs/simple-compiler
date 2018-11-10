@@ -83,3 +83,6 @@ TokenType getToken(void)
   return currentToken;
 }
 
+int yywrap(void)
+{ return 1;
+}
