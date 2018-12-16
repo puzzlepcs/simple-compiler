@@ -9,7 +9,7 @@ CC = gcc
 CFLAGS =
 
 # OBJS = main.o util.o scan.o parse.o symtab.o analyze.o code.o cgen.o
-OBJS = y.tab.o lex.yy.o main.o util.o symtab.o code.o 
+OBJS = y.tab.o lex.yy.o main.o util.o symtab.o analyze.o 
 
 cminus: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o cminus

@@ -69,7 +69,7 @@ typedef enum {FuncK,VarK,VarArrayK} DeclKind;
 typedef enum {ArrParamK,SingleParamK} ParamKind;
 
 /* ExpType is used for type checking */
-typedef enum {Void,Integer,Boolean} ExpType;
+typedef enum {Void,Integer,Boolean,IntegerArray} ExpType;
 
 typedef struct arrayAttr {
 	TokenType type;
@@ -86,6 +86,8 @@ typedef struct varAttr {
 	TokenType type;
 	char * name;
 } VarAttr;
+
+struct ScopeRec;
 
 #define MAXCHILDREN 3
 
@@ -104,7 +106,8 @@ typedef struct treeNode
              char * name;
 	 		 ArrayAttr arr;
 			 FuncAttr func;  
-	 		 VarAttr var;		} attr;
+	 		 VarAttr var;		
+			 struct ScopeRec * scope; } attr;
      ExpType type; /* for type checking of exps */
    } TreeNode;
 
